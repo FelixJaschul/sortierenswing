@@ -9,8 +9,6 @@ import Sort.SortAlgorithm;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -76,12 +74,7 @@ public class SortVisualizer extends JFrame {
 
         // Set up timer for animation
         // milliseconds between micro-steps
-        timer = new Timer(DELAY, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                performMicroStep();
-            }
-        });
+        timer = new Timer(DELAY, e -> performMicroStep());
 
         // Initialize
         algorithm.resetForNewStep(array, currentStep);
@@ -331,6 +324,7 @@ public class SortVisualizer extends JFrame {
 
     // Helper method to create styled menu items
     private JMenuItem createStyledMenuItem(String text) {
+        Color gray = new Color(50, 50, 50);
         JMenuItem item = new JMenuItem(text) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -345,7 +339,7 @@ public class SortVisualizer extends JFrame {
                 }
 
                 // Draw text
-                g2d.setColor(new Color(50, 50, 50));
+                g2d.setColor(gray);
                 FontMetrics fm = g2d.getFontMetrics();
                 int x = 10;
                 int y = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();
@@ -356,7 +350,7 @@ public class SortVisualizer extends JFrame {
         };
 
         // Set foreground color (not used in paintComponent but helps with UI manager)
-        item.setForeground(new Color(50, 50, 50));
+        item.setForeground(gray);
 
         // Remove default background and border
         item.setOpaque(false);
@@ -371,6 +365,39 @@ public class SortVisualizer extends JFrame {
 
     // Helper method to create styled menus
     private JMenu createStyledMenu(String text) {
+        JMenu menu = getJMenu(text);
+
+        // Style the popup menu that appears when clicking this menu
+        JPopupMenu subMenu = menu.getPopupMenu();
+        subMenu.setOpaque(false);
+        subMenu.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        // Apply Apple-like styling to the submenu
+        subMenu.setUI(new javax.swing.plaf.basic.BasicPopupMenuUI() {
+            @Override
+            public void paint(Graphics g, JComponent c) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // white background
+                g2d.setColor(new Color(255, 255, 255, 240));
+                g2d.fillRect(0, 0, c.getWidth(), c.getHeight());
+
+                // Add a subtle border
+                g2d.setColor(new Color(220, 220, 220));
+                g2d.drawRect(0, 0, c.getWidth() - 1, c.getHeight() - 1);
+
+                g2d.dispose();
+
+                // Paint the menu items
+                super.paint(g, c);
+            }
+        });
+
+        return menu;
+    }
+
+    private JMenu getJMenu(String text) {
         JMenu menu = new JMenu(text) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -405,34 +432,6 @@ public class SortVisualizer extends JFrame {
 
         // Add some padding
         menu.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-
-        // Style the popup menu that appears when clicking this menu
-        JPopupMenu subMenu = menu.getPopupMenu();
-        subMenu.setOpaque(false);
-        subMenu.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-        // Apply Apple-like styling to the submenu
-        subMenu.setUI(new javax.swing.plaf.basic.BasicPopupMenuUI() {
-            @Override
-            public void paint(Graphics g, JComponent c) {
-                Graphics2D g2d = (Graphics2D) g.create();
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                // white background
-                g2d.setColor(new Color(255, 255, 255, 240));
-                g2d.fillRect(0, 0, c.getWidth(), c.getHeight());
-
-                // Add a subtle border
-                g2d.setColor(new Color(220, 220, 220));
-                g2d.drawRect(0, 0, c.getWidth() - 1, c.getHeight() - 1);
-
-                g2d.dispose();
-
-                // Paint the menu items
-                super.paint(g, c);
-            }
-        });
-
         return menu;
     }
 
